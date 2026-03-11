@@ -41,7 +41,7 @@ jobs:
       - name: Wait for restart
         run: |
           echo "Waiting for pod to enter CrashLoopBackOff..."
-          sleep 30
+          sleep 60
 
 
       - name: Setup Python
