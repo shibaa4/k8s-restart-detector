@@ -8,13 +8,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout Repository
         uses: actions/checkout@v4
+
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
         with:
           version: 'v1.29.0'
+
 
       - name: Install Kind
         run: |
@@ -22,27 +25,38 @@ jobs:
           chmod +x ./kind
           sudo mv ./kind /usr/local/bin/kind
 
+
       - name: Create Kubernetes Cluster
         run: |
           kind create cluster
+          echo "Waiting for cluster to initialize..."
+          sleep 20
+
 
       - name: Deploy failing pod
         run: |
           kubectl apply -f crash.yaml
 
+
       - name: Wait for restart
         run: |
+          echo "Waiting for pod to enter CrashLoopBackOff..."
           sleep 30
+
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
+
       - name: Install dependencies
-        run: pip install requests
+        run: |
+          pip install requests
+
 
       - name: Run Restart Detector
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        run: python restart_detector.py
+        run: |
+          python restart_detector.py
